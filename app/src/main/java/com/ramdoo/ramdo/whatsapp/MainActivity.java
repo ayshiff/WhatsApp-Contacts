@@ -5,10 +5,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 
 import java.util.ArrayList;
@@ -22,35 +19,24 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_whats_app_contacts);
+        setContentView(R.layout.activity_whatsapp);
 
         contactsListView = (ListView) findViewById(R.id.listWhatsAppContacts);
 
-        // Create a progress bar to display while the list loads
-        ProgressBar progressBar = new ProgressBar(this);
-        progressBar.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
-        progressBar.setIndeterminate(true);
-        contactsListView.setEmptyView(progressBar);
-
-        // Must add the progress bar to the root of the layout
-        ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-        root.addView(progressBar);
-
-        String[] from = { "name" , "number" };
+        String[] from = { "ContactName" , "ContactNumber" };
         int[] to = { R.id.txtName, R.id.txtNumber };
 
         contacts = fetchWhatsAppContacts();
 
-        SimpleAdapter adapter = new SimpleAdapter(this, contacts, R.layout.whatsapp_list_item, from, to);
+        SimpleAdapter adapter = new SimpleAdapter(this, contacts, R.layout.list_whatsapp, from, to);
         contactsListView.setAdapter(adapter);
 
     }
 
-    private HashMap<String, String> putData(String name, String number) {
+    private HashMap<String, String> pushData(String ContactName, String ContactNumber) {
         HashMap<String, String> item = new HashMap<String, String>();
-        item.put("name", name);
-        item.put("number", number);
+        item.put("ContactName", ContactName);
+        item.put("ContactNumber", ContactNumber);
         return item;
     }
 
@@ -63,6 +49,7 @@ public class MainActivity extends Activity {
                 ContactsContract.Data.MIMETYPE,
                 "account_type",
                 ContactsContract.Data.DATA3,
+               // ContactsContract.Data.PHOTO_URI,
         };
         final String selection= ContactsContract.Data.MIMETYPE+" =? and account_type=?";
         final String[] selectionArgs = {
@@ -90,7 +77,7 @@ public class MainActivity extends Activity {
                 name=mCursor.getString(mCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             }
             mCursor.close();
-            list.add(putData(name, number));
+            list.add(pushData(name, number));
         }
 
         return list;
