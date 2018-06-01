@@ -9,12 +9,14 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MainActivity extends Activity {
@@ -49,6 +51,7 @@ public class MainActivity extends Activity {
 
     private ArrayList<Map<String, String>> fetchWhatsAppContacts(){
 
+
         ArrayList<Map<String, String>> list = new ArrayList<Map<String,String>>();
 
         final String[] projection={
@@ -56,7 +59,7 @@ public class MainActivity extends Activity {
                 ContactsContract.Data.MIMETYPE,
                 "account_type",
                 ContactsContract.Data.DATA3,
-               // ContactsContract.Data.PHOTO_URI,
+                ContactsContract.Data.PHOTO_URI,
         };
         final String selection= ContactsContract.Data.MIMETYPE+" =? and account_type=?";
         final String[] selectionArgs = {
@@ -73,6 +76,7 @@ public class MainActivity extends Activity {
         while(c.moveToNext()){
             String id=c.getString(c.getColumnIndex(ContactsContract.Data.CONTACT_ID));
             String number=c.getString(c.getColumnIndex(ContactsContract.Data.DATA3));
+            String photo = c.getString(c.getColumnIndex(ContactsContract.Data.PHOTO_URI));
             String name="";
             Cursor mCursor=getContentResolver().query(
                     ContactsContract.Contacts.CONTENT_URI,
@@ -85,6 +89,7 @@ public class MainActivity extends Activity {
             }
             mCursor.close();
             list.add(pushData(name, number));
+            // Log.d("TAG", photo);
         }
 
         return list;
@@ -122,6 +127,8 @@ public class MainActivity extends Activity {
             if (grantResults.length == 1 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Read Contacts permission granted", Toast.LENGTH_SHORT).show();
+
+
             } else {
                 Toast.makeText(this, "Read Contacts permission denied", Toast.LENGTH_SHORT).show();
             }
