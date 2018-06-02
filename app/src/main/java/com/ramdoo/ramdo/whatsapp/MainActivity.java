@@ -3,32 +3,42 @@ package com.ramdoo.ramdo.whatsapp;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+import static java.lang.Long.parseLong;
 
 public class MainActivity extends Activity {
 
     private ArrayList<Map<String, String>> contacts;
     private ListView contactsListView;
+    private ArrayList<String> photoList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_whatsapp);
 
         getPermissionToReadUserContacts();
+
 
         contactsListView = (ListView) findViewById(R.id.listWhatsAppContacts);
 
@@ -38,10 +48,10 @@ public class MainActivity extends Activity {
         contacts = fetchWhatsAppContacts();
 
         SimpleAdapter adapter = new SimpleAdapter(this, contacts, R.layout.list_whatsapp, from, to);
+
         contactsListView.setAdapter(adapter);
 
     }
-
     private HashMap<String, String> pushData(String ContactName, String ContactNumber) {
         HashMap<String, String> item = new HashMap<String, String>();
         item.put("ContactName", ContactName);
@@ -58,8 +68,7 @@ public class MainActivity extends Activity {
                 ContactsContract.Data.CONTACT_ID,
                 ContactsContract.Data.MIMETYPE,
                 "account_type",
-                ContactsContract.Data.DATA3,
-                ContactsContract.Data.PHOTO_URI,
+                ContactsContract.Data.DATA1
         };
         final String selection= ContactsContract.Data.MIMETYPE+" =? and account_type=?";
         final String[] selectionArgs = {
@@ -75,8 +84,12 @@ public class MainActivity extends Activity {
                 null);
         while(c.moveToNext()){
             String id=c.getString(c.getColumnIndex(ContactsContract.Data.CONTACT_ID));
-            String number=c.getString(c.getColumnIndex(ContactsContract.Data.DATA3));
-            String photo = c.getString(c.getColumnIndex(ContactsContract.Data.PHOTO_URI));
+            String numberW=c.getString(c.getColumnIndex(ContactsContract.Data.DATA1));
+            String[] parts = numberW.split("@");
+            String numberPhone = parts[0];
+            String number = "Tel : + " + numberPhone.substring(0, 2) + " " + numberPhone.substring(2, numberPhone.length());
+           // String image_uri = c.getString(c.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+            //photoList.add(image_uri);
             String name="";
             Cursor mCursor=getContentResolver().query(
                     ContactsContract.Contacts.CONTENT_URI,
@@ -89,11 +102,11 @@ public class MainActivity extends Activity {
             }
             mCursor.close();
             list.add(pushData(name, number));
-            // Log.d("TAG", photo);
-        }
 
+        }
         return list;
     }
+
 
     // Identifier for the permission request
     private static final int READ_CONTACTS_PERMISSIONS_REQUEST = 1;
