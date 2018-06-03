@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
@@ -26,12 +27,20 @@ import java.util.Map;
 
 import static java.lang.Long.parseLong;
 
+/**
+ * Main class
+ */
 public class MainActivity extends Activity {
 
     private ArrayList<Map<String, String>> contacts;
     private ListView contactsListView;
     private ArrayList<String> photoList = new ArrayList<>();
+    private ArrayAdapter arrayAdapter;
 
+    /**
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +51,7 @@ public class MainActivity extends Activity {
 
         contactsListView = (ListView) findViewById(R.id.listWhatsAppContacts);
 
+
         String[] from = { "ContactName" , "ContactNumber" };
         int[] to = { R.id.txtName, R.id.txtNumber };
 
@@ -49,9 +59,24 @@ public class MainActivity extends Activity {
 
         SimpleAdapter adapter = new SimpleAdapter(this, contacts, R.layout.list_whatsapp, from, to);
 
+        /**
+         * Adding photo support
+         */
+        /*
+        arrayAdapter = new ArrayAdapter(this, R.layout.list_whatsapp, photoList);
+        contactsListView.setAdapter(arrayAdapter); */
+
         contactsListView.setAdapter(adapter);
 
+
     }
+
+    /**
+     *
+     * @param ContactName
+     * @param ContactNumber
+     * @return HashMap<String, String>()
+     */
     private HashMap<String, String> pushData(String ContactName, String ContactNumber) {
         HashMap<String, String> item = new HashMap<String, String>();
         item.put("ContactName", ContactName);
@@ -59,6 +84,10 @@ public class MainActivity extends Activity {
         return item;
     }
 
+    /**
+     *
+     * @return ArrayList<Map<String,String>>()
+     */
     private ArrayList<Map<String, String>> fetchWhatsAppContacts(){
 
 
@@ -68,7 +97,8 @@ public class MainActivity extends Activity {
                 ContactsContract.Data.CONTACT_ID,
                 ContactsContract.Data.MIMETYPE,
                 "account_type",
-                ContactsContract.Data.DATA1
+                ContactsContract.Data.DATA1,
+                ContactsContract.Data.PHOTO_URI,
         };
         final String selection= ContactsContract.Data.MIMETYPE+" =? and account_type=?";
         final String[] selectionArgs = {
@@ -88,8 +118,8 @@ public class MainActivity extends Activity {
             String[] parts = numberW.split("@");
             String numberPhone = parts[0];
             String number = "Tel : + " + numberPhone.substring(0, 2) + " " + numberPhone.substring(2, numberPhone.length());
-           // String image_uri = c.getString(c.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
-            //photoList.add(image_uri);
+            String image_uri = c.getString(c.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
+            photoList.add(image_uri);
             String name="";
             Cursor mCursor=getContentResolver().query(
                     ContactsContract.Contacts.CONTENT_URI,
@@ -111,8 +141,10 @@ public class MainActivity extends Activity {
     // Identifier for the permission request
     private static final int READ_CONTACTS_PERMISSIONS_REQUEST = 1;
 
-    // Called when the user is performing an action which requires the app to read the
-    // user's contacts
+    /**
+     *
+     * Called when the user is performing an action which requires the app to read the user's contacts
+     */
     public void getPermissionToReadUserContacts() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
@@ -130,7 +162,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    // Callback with the request from calling requestPermissions(...)
+    /**
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     * Callback with the request from calling requestPermissions(...)
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
