@@ -13,8 +13,14 @@ Use the Android Studio Build Variants button to choose between production and st
 From Android Studio:
 
 - Build menu
-- Generate Signed APK...
-- Fill in the keystore information (you only need to do this once manually and then let Android Studio remember it)
+- Build APK(s)...
+
+# What's next ?
+
+- [ ] IOS
+- [ ] Fetch photos from contacts
+- [ ] Design
+- [ ] Add favorites contacts
 
 # Contributing
 - Fork it
@@ -22,3 +28,9 @@ From Android Studio:
 - Commit your changes (git commit -m 'Add some feature')
 - Push your branch (git push origin my-new-feature)
 - Create a new Pull Request
+
+# Reference for help
+
+This is the way contacts are stored in android :
+![Reference](https://i.stack.imgur.com/oscnl.png )
+
